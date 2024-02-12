@@ -36,4 +36,4 @@ function deleteCard(card) {
   card.remove();
 }
 
-export { createCard as addCard, deleteCard, likeCard };
+export { createCard, deleteCard, likeCard };
