@@ -1,6 +1,6 @@
 import "./pages/index.css";
 import { initialCards } from "./components/cards.js";
-import { addCard, deleteCard, likeCard } from "./components/card.js";
+import { addCard as createCard, deleteCard, likeCard } from "./components/card.js";
 import { openPopup, closePopup } from "./components/modal.js";
 
 //Поиск элементов, кнопок и попапов
@@ -19,14 +19,14 @@ const jobInput = formElement.elements.description; //Находим поле з�
 const formCard = document.forms["new-place"]; //Находим  форму создания карточки
 const nameNewCard = formCard.elements["place-name"]; //Находим поле названия города
 const imageNewCard = formCard.elements.link; //Находим поле для ссылки на картинку
-const buttonAddButton = document.querySelector(".profile__add-button"); //кнопка добавления нового места
-const newPlace = document.querySelector(".popup_type_new-card"); // вытащили элемент с классом второго попапа
-const buttonProfile = document.querySelector(".profile__edit-button"); //кнопка первого класса попапа
-const typeEdit = document.querySelector(".popup_type_edit"); //вытащили элемент с классом первого попапа
+const buttonAddButton = document.querySelector(".profile__add-button"); //кнопка добавления новой карточки
+const newPlace = document.querySelector(".popup_type_new-card"); // вытащили элемент с классом попапа создания новой карточки
+const buttonProfile = document.querySelector(".profile__edit-button"); //кнопка класса попапа профиля
+const popupTypeEdit = document.querySelector(".popup_type_edit"); //вытащили элемент с классом попапа профиля
 
 // @todo: Вывести карточки на страницу
 initialCards.forEach(function (item) {
-  placesList.append(addCard(item, deleteCard, likeCard, openImagePopup));
+  placesList.append(createCard(item, deleteCard, likeCard, openImagePopup));
 });
 
 //Функция, закрывающая попап, который открыт
@@ -50,7 +50,7 @@ function openImagePopup(cardImg) {
 
 //слушатель открытия попапа профиля
 buttonProfile.addEventListener("click", () => {
-  openPopup(typeEdit);
+  openPopup(popupTypeEdit);
   nameInput.value = nameTitle.textContent;
   jobInput.value = jobTitle.textContent;
 });
@@ -61,20 +61,20 @@ buttonAddButton.addEventListener("click", () => {
 });
 
 // Обработчик «отправки» формы в профиле
-function handleFormSubmit(evt) {
+function handleFormSubmitProfile(evt) {
   evt.preventDefault();
   const name = nameInput.value;
   const job = jobInput.value;
   nameTitle.textContent = name;
   jobTitle.textContent = job;
-  closeButtonPopup(typeEdit);
+  closeButtonPopup(popupTypeEdit);
 }
 
 // Прикрепляем обработчик к форме: он будет следить за событием “submit” - «отправка»
-formElement.addEventListener("submit", handleFormSubmit);
+formElement.addEventListener("submit", handleFormSubmitProfile);
 
 // Обработчик «отправки» формы для новой карточки
-function newCardAdd(evt) {
+function addNewCard(evt) {
   evt.preventDefault();
   const namePlace = nameNewCard.value;
   const imagePlace = imageNewCard.value;
@@ -82,7 +82,7 @@ function newCardAdd(evt) {
     name: namePlace,
     link: imagePlace,
   };
-  const addNewCard = addCard(newCard, deleteCard, likeCard, openImagePopup);
+  const addNewCard = createCard(newCard, deleteCard, likeCard, openImagePopup);
 
   placesList.prepend(addNewCard);
   closeButtonPopup(newPlace);
@@ -90,6 +90,6 @@ function newCardAdd(evt) {
 }
 
 // Прикрепляем обработчик к форме: он будет следить за событием “submit” - «отправка»
-formCard.addEventListener("submit", newCardAdd);
+formCard.addEventListener("submit", addNewCard);
 
 export { cardTemplate };

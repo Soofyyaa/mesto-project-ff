@@ -1,7 +1,7 @@
 import { cardTemplate } from "/src/index";
 
 // @todo: Функция создания карточки с лайком, удалением и открытием картинки
-function addCard(element, deleteCard, likeCard, openImagePopup) {
+function createCard(element, deleteCard, likeCard, openImagePopup) {
   const cardElement = cardTemplate.querySelector(".card").cloneNode(true);
   const cardImg = cardElement.querySelector(".card__image");
   const delButton = cardElement.querySelector(".card__delete-button");
@@ -36,4 +36,4 @@ function deleteCard(card) {
   card.remove();
 }
 
-export { addCard, deleteCard, likeCard };
+export { createCard as addCard, deleteCard, likeCard };
