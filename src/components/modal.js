@@ -1,12 +1,12 @@
 //Функция открытый попап
-function openPopup(popup) {
+export function openPopup(popup) {
   popup.classList.add("popup_is-opened");
   document.addEventListener("keydown", closePopupEsc); // слушатель esc на открытый попап
   document.addEventListener("click", closePopupOverlay); //слушатель оверлея на открытый попап
 }
 
 //Функция закрытый попап
-function closePopup(popup) {
+export function closePopup(popup) {
   popup.classList.remove("popup_is-opened");
   document.removeEventListener("keydown", closePopupEsc); //удаление esc слушателя при закрытом попапе
   document.removeEventListener("click", closePopupOverlay); //удаление оверлей слушателя при закрытом попапе
@@ -27,5 +27,3 @@ function closePopupOverlay(evt) {
     closePopup(popup);
   }
 }
-
-export { openPopup, closePopup };
