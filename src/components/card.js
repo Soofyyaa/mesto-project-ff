@@ -1,5 +1,4 @@
-import { cardTemplate } from "/src/index";
-
+ const cardTemplate = document.getElementById("card-template").content; // @todo: Темплейт карточки
 // @todo: Функция создания карточки с лайком, удалением и открытием картинки
 export function createCard(
   element,
@@ -20,7 +19,7 @@ export function createCard(
   countLike.textContent = element.likes.length;
 
   cardImg.addEventListener("click", (evt) => {
-    openImagePopup(cardImg);
+    openImagePopup(element.link, element.name);
   });
 
   if (element.likes.some((like) => like._id === profileId)) {

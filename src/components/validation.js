@@ -1,12 +1,3 @@
-export const validationConfig = {
-  formSelector: ".popup__form",
-  inputSelector: ".popup__input",
-  submitButtonSelector: ".popup__button",
-  inactiveButtonClass: "popup__button_inactive",
-  inputErrorClass: "popup__input_type_error",
-  errorClass: "form__input-error_active",
-};
-
 //отображение ошибки
 const showInputError = (formElement, inputElement, validationConfig) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
@@ -105,4 +96,3 @@ export const clearValidation = (formElement, validationConfig) => {
 
   toggleButtonState(inputList, buttonElement, validationConfig);
 };
-

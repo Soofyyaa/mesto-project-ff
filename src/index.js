@@ -5,7 +5,11 @@ import {
   likeCard,
   isActiveLikeButton,
 } from "./components/card.js";
-import { openPopup, closePopup } from "./components/modal.js";
+import {
+  openPopup,
+  closePopup,
+  closePopupOverlay,
+} from "./components/modal.js";
 import {
   getProfile,
   getCards,
@@ -18,14 +22,21 @@ import {
 } from "./components/api.js";
 
 import {
-  validationConfig,
   isValid,
   enableValidation,
   clearValidation,
 } from "./components/validation.js";
 
+const validationConfig = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_inactive",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "form__input-error_active",
+};
+
 //Поиск элементов, кнопок и попапов
-export const cardTemplate = document.getElementById("card-template").content; // @todo: Темплейт карточки
 const content = document.querySelector(".content"); // @todo: DOM узлы
 const placesList = content.querySelector(".places__list"); //список карточек
 const typeImage = document.querySelector(".popup_type_image"); //попап открытия  картинки
@@ -34,9 +45,9 @@ const captionPopup = document.querySelector(".popup__caption"); //подпись
 const closeButtons = document.querySelectorAll(".popup__close"); //кнопки крестика, закрывающие ЛЮБОЙ попап
 const nameTitle = document.querySelector(".profile__title"); // имя в профиле
 const jobTitle = document.querySelector(".profile__description"); //занятие в профиле
-const formElement = document.forms["edit-profile"]; //Находим  форму профиля
-const nameInput = formElement.elements.name; //Находим поле имени
-const jobInput = formElement.elements.description; //Находим поле занятия
+const formProfile = document.forms["edit-profile"]; //Находим  форму профиля
+const nameInput = formProfile.elements.name; //Находим поле имени
+const jobInput = formProfile.elements.description; //Находим поле занятия
 const formCard = document.forms["new-place"]; //Находим  форму создания карточки
 const nameNewCard = formCard.elements["place-name"]; //Находим поле названия города
 const imageNewCard = formCard.elements.link; //Находим поле для ссылки на картинку
@@ -48,14 +59,13 @@ const profileImg = document.querySelector(".profile__image"); //картиноч
 const popupAvatar = document.querySelector(".popup_change_avatar"); // вытащили попап замены аватара
 const formAvatar = document.forms["change_avatar"]; //форма аватара
 const inputAvatar = formAvatar.elements.link; //Находим поле для ссылки на картинку аватара
-const buttonSaveProfile = formElement.querySelector(".popup__button"); //кнопка сохранения профиля
-const buttonSaveNewCard = formCard.querySelector(".popup__button"); //кнопка сохранения новой карточки
-const buttonSaveAvatar = popupAvatar.querySelector(".popup__button"); //кнопка сохранения аватара
+
+const overlays = document.querySelectorAll(".popup");
 let profileId;
 
 //Функция, закрывающая попап, который открыт
-function closeButtonPopup() {
-  const popupOpen = document.querySelector(".popup_is-opened");
+function closeButtonPopup(evt) {
+  const popupOpen = evt.target.closest(".popup");
   closePopup(popupOpen);
 }
 
@@ -64,11 +74,15 @@ closeButtons.forEach(function (item) {
   item.addEventListener("click", closeButtonPopup);
 });
 
+overlays.forEach((popup) => {
+  popup.addEventListener("click", closePopupOverlay);
+});
+
 //Функция открытия большого попапа
-function openImagePopup(cardImg) {
-  popupImage.src = cardImg.src;
-  popupImage.alt = cardImg.alt;
-  captionPopup.textContent = cardImg.alt;
+function openImagePopup(imageUrl, imageCaption) {
+  popupImage.src = imageUrl;
+  popupImage.alt = imageCaption;
+  captionPopup.textContent = imageCaption;
   openPopup(typeImage);
 }
 
@@ -95,25 +109,31 @@ buttonAddButton.addEventListener("click", () => {
 // Обработчик «отправки» формы в профиле
 function handleFormSubmitProfile(evt) {
   evt.preventDefault();
-  buttonSaveProfile.textContent = "Сохранение...";
+  const submitButton = formProfile.querySelector(".popup__button");
+  const originalButtonText = submitButton.textContent;
+  submitButton.textContent = "Сохранение...";
   editProfile(nameInput.value, jobInput.value)
     .then((profile) => {
       initialProfile(profile);
-      closeButtonPopup(popupTypeEdit);
+      closePopup(popupTypeEdit);
     })
-    .catch((errorMessage) => console.log(errorMessage))
-    .finally((profile) => {
-      buttonSaveProfile.textContent = "Сохранить";
+    .catch((error) => {
+      console.error("Не удалось отредактировать данные профиля", error);
+    })
+    .finally(() => {
+      submitButton.textContent = originalButtonText;
     });
 }
 
 // Прикрепляем обработчик к форме: он будет следить за событием “submit” - «отправка»
-formElement.addEventListener("submit", handleFormSubmitProfile);
+formProfile.addEventListener("submit", handleFormSubmitProfile);
 
 // Обработчик «отправки» формы для новой карточки
 function addNewCardHandler(evt) {
   evt.preventDefault();
-  buttonSaveNewCard.textContent = "Сохранение...";
+  const submitButton = formCard.querySelector(".popup__button");
+  const originalButtonText = submitButton.textContent;
+  submitButton.textContent = "Сохранение...";
   addCard(nameNewCard.value, imageNewCard.value)
     .then((card) => {
       const addNewCard = createCard(
@@ -125,12 +145,14 @@ function addNewCardHandler(evt) {
       );
 
       placesList.prepend(addNewCard);
-      closeButtonPopup(newPlace);
+      closePopup(newPlace);
       formCard.reset();
     })
-    .catch((errorMessage) => console.log(errorMessage))
-    .finally((card) => {
-      buttonSaveProfile.textContent = "Сохранить";
+    .catch((error) => {
+      console.error("Не удалось добавить новую карточку", error);
+    })
+    .finally(() => {
+      submitButton.textContent = originalButtonText;
     });
 }
 
@@ -139,16 +161,20 @@ formCard.addEventListener("submit", addNewCardHandler);
 
 function addNewAvatarHandler(evt) {
   evt.preventDefault();
-  buttonSaveAvatar.textContent = "Сохранение...";
+  const submitButton = popupAvatar.querySelector(".popup__button");
+  const originalButtonText = submitButton.textContent;
+  submitButton.textContent = "Сохранение...";
   editAvatar(inputAvatar.value)
     .then((avatar) => {
       initialAvatar(avatar);
-      closeButtonPopup(popupAvatar);
+      closePopup(popupAvatar);
       formAvatar.reset();
     })
-    .catch((errorMessage) => console.log(errorMessage))
+    .catch((error) => {
+      console.error("Не удалось отредактировать аватар", error);
+    })
     .finally((avatar) => {
-      buttonSaveProfile.textContent = "Сохранить";
+      submitButton.textContent = originalButtonText;
     });
 }
 

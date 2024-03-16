@@ -6,6 +6,13 @@ const config = {
   },
 };
 
+function getResponseData(res) {
+  if (!res.ok) {
+    return Promise.reject(`Ошибка: ${res.status}`);
+  }
+  return res.json();
+}
+
 //изменение данных о пользователе
 export function editProfile(name, about) {
   return fetch(`${config.baseUrl}/users/me`, {
@@ -15,13 +22,7 @@ export function editProfile(name, about) {
       name: name,
       about: about,
     }),
-  }).then((response) => {
-    if (response.ok) {
-      return response.json();
-    } else {
-      return Promise.reject("Не удалось отредактировать данные профиля");
-    }
-  });
+  }).then((res) => getResponseData(res));
 }
 
 // добавление карточек
@@ -33,13 +34,7 @@ export function addCard(name, link) {
       name: name,
       link: link,
     }),
-  }).then((response) => {
-    if (response.ok) {
-      return response.json();
-    } else {
-      return Promise.reject("Не удалось добавить новую карточку");
-    }
-  });
+  }).then((res) => getResponseData(res));
 }
 
 // запрос информации о пользователе
@@ -47,13 +42,7 @@ export function getProfile() {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers,
     method: "GET",
-  }).then((response) => {
-    if (response.ok) {
-      return response.json();
-    } else {
-      return Promise.reject("Не удалось получить данные профиля");
-    }
-  });
+  }).then((res) => getResponseData(res));
 }
 
 //запрос карточек
@@ -61,13 +50,7 @@ export function getCards() {
   return fetch(`${config.baseUrl}/cards`, {
     headers: config.headers,
     method: "GET",
-  }).then((response) => {
-    if (response.ok) {
-      return response.json();
-    } else {
-      return Promise.reject("Не удалось получить список карточек");
-    }
-  });
+  }).then((res) => getResponseData(res));
 }
 
 //удаление карточек
@@ -75,13 +58,7 @@ export function removeCard(id) {
   return fetch(`${config.baseUrl}/cards/${id}`, {
     headers: config.headers,
     method: "DELETE",
-  }).then((response) => {
-    if (response.ok) {
-      return response.json();
-    } else {
-      return Promise.reject("Не удалось удалить карточку");
-    }
-  });
+  }).then((res) => getResponseData(res));
 }
 
 //постановка лайка
@@ -89,13 +66,7 @@ export function addLike(id) {
   return fetch(`${config.baseUrl}/cards/likes/${id}`, {
     headers: config.headers,
     method: "PUT",
-  }).then((response) => {
-    if (response.ok) {
-      return response.json();
-    } else {
-      return Promise.reject("Не удалось поставить like");
-    }
-  });
+  }).then((res) => getResponseData(res));
 }
 
 //удаление лайка
@@ -103,13 +74,7 @@ export function removeLike(id) {
   return fetch(`${config.baseUrl}/cards/likes/${id}`, {
     headers: config.headers,
     method: "DELETE",
-  }).then((response) => {
-    if (response.ok) {
-      return response.json();
-    } else {
-      return Promise.reject("Не удалось удалить like");
-    }
-  });
+  }).then((res) => getResponseData(res));
 }
 
 //запрос на замену аватара
@@ -120,11 +85,5 @@ export function editAvatar(avatar) {
     body: JSON.stringify({
       avatar: avatar,
     }),
-  }).then((response) => {
-    if (response.ok) {
-      return response.json();
-    } else {
-      return Promise.reject("Не удалось отредактировать аватар");
-    }
-  });
+  }).then((res) => getResponseData(res));
 }
